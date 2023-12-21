@@ -27,6 +27,20 @@ public class GinjaKarpTelePID extends LinearOpMode {
 
 
     //====================
+    //creates arm pos Enum
+
+    enum Level {
+        STANDARD,
+        LOW,
+        MEDIUM,
+        HIGH,
+    }
+
+    //creates arm pos Enum
+    //====================
+
+
+    //====================
     //create motors/servos
     private CRServo hang;
     private DcMotor Slide;
@@ -53,8 +67,16 @@ public class GinjaKarpTelePID extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
 
-
         //initPID
+        //====================
+
+
+        //====================
+        //sets default enum arm pos
+
+        Level height = Level.STANDARD;
+
+        //sets default enum arm pos
         //====================
 
 
@@ -126,9 +148,14 @@ public class GinjaKarpTelePID extends LinearOpMode {
         //====================
         //runOpMode variables
 
-        boolean fieldCentric = true; //fieldCentric mode
+        boolean fieldCentric = false; //fieldCentric mode
+
         int gallow = -3300;//lift to backdrop position
+        boolean downReleased = true;
+        boolean upReleased = true;
+
         int knot =0;//Noose intake position
+
 
         //runOpMode variables
         //====================
@@ -218,13 +245,12 @@ public class GinjaKarpTelePID extends LinearOpMode {
             }
 
             if (gamepad2.right_trigger > 0) {//extends slide
-                Slide.setTargetPosition(1300);
+                Slide.setTargetPosition(900);
             } else if (gamepad2.left_trigger > 0) {//retracts slide
                 Slide.setTargetPosition(0);
             } else {//holds slides
                 Slide.setTargetPosition(Slide.getCurrentPosition());
             }
-
 
             if (gamepad2.y == true) {//raises Flip
                 arm.target = gallow;
@@ -238,14 +264,18 @@ public class GinjaKarpTelePID extends LinearOpMode {
 
             if (gamepad2.x == true) {//lowers flip
                 Noose.setTargetPosition(knot + 550);
-                arm.target = gallow-gallow;
+                arm.target = 0;
 
 
             }
 
 
-            if (gamepad2.left_bumper == true) {//Intake-Flip parallel
-                Noose.setTargetPosition(knot + 550);
+            if (gamepad2.left_bumper == true) {//Intake-Flip parallel to
+                if (FlipStep > -3500) {
+                    Noose.setTargetPosition(knot + 550);
+                } else {
+                    Noose.setTargetPosition((int) (FlipStep * 0.545 + knot + 2000));//Intake-Ground Parallel
+                }
             }
 
 
@@ -268,17 +298,57 @@ public class GinjaKarpTelePID extends LinearOpMode {
             //====================
             //debugging
 
-            if (gamepad2.dpad_right == true) {//lift encoder reset
+            /*if (gamepad2.dpad_right == true) {//lift encoder reset
                 arm.reset();
+            }*/
+
+            if (gamepad2.dpad_up == true && upReleased) {//manual lift up
+                upReleased = false;
+                //gallow -= 50;
+                //arm.target = gallow;
+
+                if (height == Level.LOW) {
+                    height = Level.MEDIUM;
+                } else if (height == Level.MEDIUM){
+                    height = Level.HIGH;
+                } else {
+                    height = Level.STANDARD;
+                }
+
+            } else if (gamepad2.dpad_up == false) {
+                upReleased = true;
             }
 
-            if (gamepad2.dpad_up == true) {//manual lift up
-                gallow -= 50;
-                arm.target = gallow;
+            if (gamepad2.dpad_down == true && downReleased) {//manual lift down
+                downReleased = false;
+                //gallow += 50;
+                //arm.target = gallow;
+
+                if (height == Level.STANDARD) {
+                    height = Level.LOW;
+                } else {
+                    height = Level.STANDARD;
+                }
+
+            } else if (gamepad2.dpad_down == false) {
+                downReleased = true;
             }
 
-            if (gamepad2.dpad_down == true) {//manual lift down
-                gallow += 50;
+            if (!downReleased || !upReleased) {
+                switch (height) {
+                    case STANDARD:
+                        gallow = -3300;
+                        break;
+                    case LOW:
+                        gallow = -4100;
+                        break;
+                    case MEDIUM:
+                        gallow = -3900;
+                        break;
+                    case HIGH:
+                        gallow = -3700;
+                        break;
+                }
                 arm.target = gallow;
             }
 
