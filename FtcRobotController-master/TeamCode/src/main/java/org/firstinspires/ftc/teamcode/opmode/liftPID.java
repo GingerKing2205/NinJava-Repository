@@ -12,7 +12,7 @@ public class liftPID {
     public PIDController controller;
 
     public static double p = 0.0023, i = 0, d = 0.0005;
-    public static double f=0.1;
+    public static double f=0.12;//was .1
 
     public int target = 0;
 
@@ -45,6 +45,10 @@ public class liftPID {
 
 
     }//ends loop
+
+    public void kill() {
+        leftFlip.setPower(0);
+    }
 
     public void reset(){
         leftFlip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

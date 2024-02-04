@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.robotcontroller.external.samples;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -70,6 +72,7 @@ public class SensorHuskyLens extends LinearOpMode {
     @Override
     public void runOpMode()
     {
+
         huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
 
         /*
