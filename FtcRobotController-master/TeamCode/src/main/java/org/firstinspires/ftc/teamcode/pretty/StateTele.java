@@ -114,6 +114,15 @@ public class StateTele extends LinearOpMode {
         //====================
         //scoring functions
 
+
+        if (gamepad2.right_trigger > 0 && slideInches < 36) {
+            robot.slide.setPower(gamepad2.right_trigger);
+        } else if (gamepad2.left_trigger > 0 && slideInches > 0) {
+            robot.slide.setPower(gamepad2.left_trigger);
+        } else {
+            robot.slide.setPower(0);
+        }
+        
         if (gamepad2.y && pivotPressed) {
             pivotUp = !pivotUp;
             pivotPressed = true;
