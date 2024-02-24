@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pretty;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -25,7 +27,18 @@ public class StateTele extends LinearOpMode {
     //====================
     //scoring constants
 
-    static Double WRISTDOWN = 0.1;
+    final double WRISTDOWN = 60; //degrees
+    final double WRISTUP = 240; //degrees
+    final double PIVOTFLAT = 0; //degrees
+    final double PIVOTUP = 120; //degrees
+
+    final double PXD = 29.84; //Ticks To Degrees  TTI = Ticks To Inches
+    final double PYD = 11.32;
+    final double WXD = 1/240;
+    final double SI = 2462 / 17;// ticks / inches
+
+    final double SL = 15; //inches
+    final double PHEIGHT = 6.5; //inches
 
     //scoring constants
     //====================
@@ -35,138 +48,199 @@ public class StateTele extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         robot.init(hardwareMap);
-
-        //====================
-        //drivetrain variables
-
-        double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-        double x = gamepad1.left_stick_x;
-        double rx = -gamepad1.right_stick_x; //i made this neg to try and fix turning
-
-        double frontLeftPowerRaw = (y + x + (rx * -.7));
-        double frontRightPowerRaw = (y - x - (rx * -.7));
-        double backLeftPowerRaw = (y - x + (rx * -.7));
-        double backRightPowerRaw = (y + x - (rx * -.7));
-
-        //drivetrain variables
-        //====================
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
 
         //====================
         //scoring variables
 
-        boolean wristPressed = false;
-        boolean pivotPressed = false;
+        boolean xPressed = false;
+        boolean yPressed = false;
+        boolean lBump = false;
+        boolean rBump = false;
+
+        boolean aPressed = false;
+        boolean bPressed = false;
 
         boolean leftClosed = true;
         boolean rightClosed = true;
-        boolean wristUp = false;
         boolean pivotUp = false;
+        boolean pivotDown = false;
 
-        double pivotXDegrees = robot.pivotX.getCurrentPosition()/29.84;
-        double pivotYDegrees = robot.pivotY.getCurrentPosition()/11.32;
-        double slideInches = robot.slide.getCurrentPosition();
+
 
         int wristXOffest = 0;
         int wristYOffset = 0;
         int pivotXOffset = 0;
         int pivotYOffset = 0;
 
-        double wristXTarget = pivotXDegrees + wristXOffest;
-        double wristYTarget = pivotYDegrees + wristYOffset;
-        int pivotXTarget = (int) slideInches + pivotXOffset;
-        int pivotYTarget = pivotYOffset;
-
-
+        double wristXTarget = WRISTUP;
+        double wristYTarget = robot.wristY.getPosition();
+        double pivotXTarget = 0;
+        double pivotYTarget = 0;
+        double slideTarget = 0;
 
         //scoring variables
         //====================
 
 
-        //====================
-        //drivetrain functions
-        robot.frontL.setPower(frontLeftPowerRaw * -.7);
-        robot.frontR.setPower(frontRightPowerRaw * -.7);
-        robot.backL.setPower(backLeftPowerRaw * -.7);
-        robot.backR.setPower(backRightPowerRaw * -.7);
+        waitForStart();
 
-        if ((frontLeftPowerRaw == 0) && (frontRightPowerRaw == 0) && (backRightPowerRaw == 0) && (backLeftPowerRaw == 0)) {
-            robot.frontL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.frontR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.backL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.backR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        } else {
-            robot.frontL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            robot.frontR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            robot.backL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            robot.backR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        }
+        if (isStopRequested()) return;
 
-        if (gamepad1.a) {
+        while (opModeIsActive()) {
 
-        }
-
-        //drivetrain functions
-        //====================
+            double pivotXDegrees = robot.pivotX.getCurrentPosition() / PXD;
+            double pivotYDegrees = robot.pivotY.getCurrentPosition() / PYD;
+            double slideInches = robot.slide.getCurrentPosition() / SI;
 
 
+            //====================
+            //scoring functions
 
-        //====================
-        //scoring functions
-
-
-        if (gamepad2.right_trigger > 0 && slideInches < 36) {
-            robot.slide.setPower(gamepad2.right_trigger);
-        } else if (gamepad2.left_trigger > 0 && slideInches > 0) {
-            robot.slide.setPower(gamepad2.left_trigger);
-        } else {
-            robot.slide.setPower(0);
-        }
-        
-        if (gamepad2.y && pivotPressed) {
-            pivotUp = !pivotUp;
-            pivotPressed = true;
-        } else {
-            pivotPressed = false;
-        }
-
-        if (pivotXDegrees > 90) {
-
-            wristXTarget = (int) pivotXDegrees;
-
-        } else {
-
-            if (gamepad2.a && !wristPressed) {
-                wristUp = !wristUp;
-                wristPressed = true;
+            if (gamepad2.y && !yPressed) {
+                if (pivotDown) {
+                    pivotDown = false;
+                } else if (!pivotDown) {
+                    pivotUp = true;
+                }
+                yPressed = true;
             } else {
-                wristPressed = false;
+                yPressed = false;
             }
 
-            if (wristUp) {
-                wristXTarget = (int) slideInches;
+            if (gamepad2.x && !xPressed) {
+                if (pivotUp) {
+                    pivotUp = false;
+                } else if (!pivotUp) {
+                    pivotDown = true;
+                }
+                xPressed = true;
             } else {
-                wristXTarget = (int) (slideInches + WRISTDOWN);
+                xPressed = false;
             }
 
+            /*
+            if (gamepad2.right_trigger > 0) {
+                //if (slideTarget < 2462) {
+                    slideTarget -= gamepad2.right_trigger;
+                //}
+            } else if (gamepad2.left_trigger > 0) {
+                //if (slideTarget > 0) {
+                    slideTarget += gamepad2.left_trigger;
+                //}
+            }
+            */
+
+
+            if (gamepad2.a && aPressed) {
+                slideTarget -= 1/8;
+                aPressed = true;
+            } else {
+                aPressed = false;
+            }
+
+            if (gamepad2.b && bPressed) {
+                slideTarget += 1/8;
+                bPressed = true;
+            } else {
+                bPressed = false;
+            }
+
+            if (pivotDown) {
+                pivotXTarget = -Math.asin(PHEIGHT / (slideInches + SL));
+                wristXTarget = WRISTDOWN - pivotXTarget;
+            } else if (pivotUp) {
+                pivotXTarget = PIVOTUP;
+                wristXTarget = WRISTUP;
+            } else {
+                pivotXTarget = PIVOTFLAT;
+                wristXTarget = WRISTDOWN;
+            }
+
+            if (gamepad2.right_bumper) {
+
+                if (!rightClosed && !rBump) {
+                    robot.clawR.setPosition(270);
+                    rightClosed = true;
+                } else if (!rBump){
+                    robot.clawR.setPosition(0);
+                    rightClosed = false;
+                }
+                rBump = true;
+            } else {
+                rBump = false;
+            }
+
+            if (gamepad2.left_bumper) {
+                if (!leftClosed && !lBump) {
+                    robot.clawL.setPosition(270);
+                    leftClosed = true;
+                } else if (!lBump){
+                    robot.clawL.setPosition(0);
+                    leftClosed = false;
+                }
+                lBump = true;
+            } else {
+                lBump = false;
+            }
+
+            robot.slide.setTargetPosition((int) (slideTarget * SI));
+            robot.pivotX.setTargetPosition((int) (pivotXTarget * PXD));
+            robot.wristX.setPosition( (wristXTarget + wristXOffest) * WXD);
+
+
+            //scoring functions
+            //====================
+
+
+            //====================
+            //endgame functions
+
+            if (gamepad1.start) {
+                robot.plane.setPower(0.5);
+            } else {
+                robot.plane.setPower(0);
+            }
+
+            //endgame functions
+            //====================
+
+
+            //====================
+            //debug functions
+
+            if (gamepad1.a) {
+                terminateOpModeNow();
+            }
+
+            //debug functions
+            //====================
+
+
+            //====================
+            //telemetry
+
+            telemetry.addData("pivotUp", pivotUp);
+            telemetry.addData("pivotDown", pivotDown);
+
+            telemetry.addData("pivotXDegrees", pivotXDegrees);
+            telemetry.addData("pivotXTarget", pivotXTarget);
+
+            telemetry.addData("pivotYDegrees", pivotYDegrees);
+            telemetry.addData("pivotYTarget", pivotYTarget);
+
+            telemetry.addData("slideInches", slideInches);
+            telemetry.addData("slideTarget", slideTarget);
+
+            telemetry.addData("WristXPos", robot.wristX.getPosition());
+            telemetry.addData("WristXTarget", wristXTarget);
+
+            telemetry.update();
+
+            //telemetry
+            //====================
+
         }
-        robot.wristX.setPosition(wristXTarget + wristXOffest);
-
-        //scoring functions
-        //====================
-
-
-
-        //====================
-        //endgame functions
-
-        if (gamepad1.start) {
-            robot.plane.setPower(0.5);
-        } else {
-            robot.plane.setPower(0);
-        }
-
-        //endgame functions
-        //====================
     }
 }

@@ -7,9 +7,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.rr.util.Encoder;
-
-import com.qualcomm.hardware.bosch.BNO055IMU;
 
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -31,7 +28,6 @@ public class hardware {
     public List<DcMotorEx> motors;
 
     //odo encoders
-    public Encoder parallelEncoder, perpendicularEncoder;
 
     //arm
     public DcMotorEx slide;
@@ -73,18 +69,23 @@ public class hardware {
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
 
-        this.parallelEncoder = hardwareMap.get(Encoder.class, "parallelEncoder");
-
-        this.perpendicularEncoder = hardwareMap.get(Encoder.class, "perpendicularEncoder");
 
 
         this.slide = hardwareMap.get(DcMotorEx.class, "slide");
         slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slide.setTargetPosition(slide.getCurrentPosition());
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setVelocity(5000);
 
         this.pivotX = hardwareMap.get(DcMotorEx.class, "pivotX");
+        pivotX.setTargetPosition(pivotX.getCurrentPosition());
+        pivotX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        pivotX.setVelocity(3000);
 
         this.pivotY = hardwareMap.get(DcMotorEx.class, "pivotY");
         pivotY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        pivotY.setTargetPosition(pivotY.getCurrentPosition());
+        pivotY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         this.wristX = hardwareMap.get(Servo.class, "wristX");
 
@@ -97,6 +98,15 @@ public class hardware {
 
         this.plane = hardwareMap.get(CRServo.class, "plane");
     }
+
+    public void encoderReset() {
+
+        this.slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        this.pivotX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+    }
+
 }
 
 
