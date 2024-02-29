@@ -32,13 +32,10 @@ public class FarBlue extends LinearOpMode{
         drivetrain.followTrajectory(toBD);
         //arm up
         Trajectory midAlign = drivetrain.trajectoryBuilder(new Pose2d(25, 70, Math.toRadians(-90)))
-                .lineToLinearHeading(new Pose2d(22, 88, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(22, 86, Math.toRadians(-90)))
                 .build();
         drivetrain.followTrajectory(midAlign);
-        Trajectory toStack2 = drivetrain.trajectoryBuilder(new Pose2d(22, 88, Math.toRadians(-90)))
-                .lineToLinearHeading(new Pose2d(22, -16, Math.toRadians(-90)))
-                .build();
-        drivetrain.followTrajectory(toStack2);
+
 
 
 

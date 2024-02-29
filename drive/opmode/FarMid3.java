@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Autonomous
-public class FarLeftBlue extends LinearOpMode{
+public class FarMid3 extends LinearOpMode{
     @Override
     public void runOpMode(){
         SampleMecanumDrive drivetrain = new SampleMecanumDrive(hardwareMap);
@@ -26,20 +26,20 @@ public class FarLeftBlue extends LinearOpMode{
                 .lineToLinearHeading(new Pose2d (24, -17, Math.toRadians(-90)))
                 .build();
         drivetrain.followTrajectory(toStack);
-        Trajectory trussAlign = drivetrain.trajectoryBuilder(new Pose2d(24, -15, Math.toRadians(-90)))
-                .lineToLinearHeading(new Pose2d(17, -8, Math.toRadians(-90)))
-                .build();
-        drivetrain.followTrajectory(trussAlign);
-        Trajectory throughTruss = drivetrain.trajectoryBuilder(new Pose2d(15, -8, Math.toRadians(-90)))
-                .lineToLinearHeading(new Pose2d(17, 60, Math.toRadians(-90)))
-                .build();
-        drivetrain.followTrajectory(throughTruss);
-        Trajectory toBD = drivetrain.trajectoryBuilder(new Pose2d(17, 60, Math.toRadians(-90)))
-                .lineToLinearHeading(new Pose2d(30, 85, Math.toRadians(-90)))
+        Trajectory toBD = drivetrain.trajectoryBuilder(new Pose2d(24, -17, Math.toRadians(-90)))
+                .lineToLinearHeading( new Pose2d(25, 70, Math.toRadians(-90)))
                 .build();
         drivetrain.followTrajectory(toBD);
+        //arm up
+        Trajectory midAlign = drivetrain.trajectoryBuilder(new Pose2d(25, 70, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(22, 88, Math.toRadians(-90)))
+                .build();
+        drivetrain.followTrajectory(midAlign);
+        Trajectory toStack2 = drivetrain.trajectoryBuilder(new Pose2d(22, 88, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(22, -16, Math.toRadians(-90)))
+                .build();
+        drivetrain.followTrajectory(toStack2);
 
-        telemetry.addData("hehe", drivetrain.getPoseEstimate());
 
 
 
