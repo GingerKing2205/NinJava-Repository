@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode;
+package org.firstinspires.ftc.teamcode.OldOp;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -29,12 +29,25 @@ public class GinjaKarpTelePID extends LinearOpMode {
     //====================
     //creates arm pos Enum
 
-    enum Level {
-        STANDARD,
-        LOW,
-        MEDIUM,
-        HIGH,
+    public enum LevelEnum {
+        STANDARD (-3000),//was -3300
+        LOW (-4000),
+
+        MEDIUM (-3900),
+        HIGH (-3700);
+
+        private final int pos; //in ticks
+
+        LevelEnum(int pos) {
+            this.pos = pos;
+        }
+
+        private int pos() {
+            return pos;
+        }
     }
+
+
 
     //creates arm pos Enum
     //====================
@@ -74,7 +87,7 @@ public class GinjaKarpTelePID extends LinearOpMode {
         //====================
         //sets default enum arm pos
 
-        Level height = Level.STANDARD;
+        LevelEnum height = LevelEnum.STANDARD;
 
         //sets default enum arm pos
         //====================
@@ -153,6 +166,8 @@ public class GinjaKarpTelePID extends LinearOpMode {
         int gallow = -3300;//lift to backdrop position
         boolean downReleased = true;
         boolean upReleased = true;
+        boolean backReleased = true;
+        boolean endGame = false;
 
         int knot =0;//Noose intake position
 
@@ -194,8 +209,8 @@ public class GinjaKarpTelePID extends LinearOpMode {
             //telemetry
 
             telemetry.update();
-           /* telemetry.addData("slide", Slide.getCurrentPosition());
-           */ telemetry.addData("Noose", Noose.getCurrentPosition()); /*
+            /* telemetry.addData("slide", Slide.getCurrentPosition());
+             */ telemetry.addData("Noose", Noose.getCurrentPosition()); /*
             telemetry.addData("NooseTarget", Noose.getTargetPosition());
             telemetry.addData("NoosePower", Noose.getPower());
             */telemetry.addData("LeftFlip", FlipStep);/*
@@ -237,7 +252,12 @@ public class GinjaKarpTelePID extends LinearOpMode {
                 plane.setPower(0);
             }
 
-
+            if (gamepad2.dpad_left){
+                arm.target = arm.target - 100;
+            }
+            if (gamepad2.dpad_right){
+                arm.target = arm.target + 100;
+            }
             if (gamepad2.left_stick_y != 0) {//intake power
                 intake.setPower(-gamepad2.left_stick_y);
             } else {
@@ -274,7 +294,7 @@ public class GinjaKarpTelePID extends LinearOpMode {
                 if (FlipStep > -3500) {
                     Noose.setTargetPosition(knot + 550);
                 } else {
-                    Noose.setTargetPosition((int) (FlipStep * 0.545 + knot + 2000));//Intake-Ground Parallel
+                    Noose.setTargetPosition((int) (FlipStep * 0.545 + knot + 550));//Intake-Ground Parallel  was plus 2000
                 }
             }
 
@@ -289,7 +309,7 @@ public class GinjaKarpTelePID extends LinearOpMode {
             } else if (gamepad1.dpad_up == true) {//highers intake position
                 knot = knot + 25;
                 Noose.setTargetPosition(knot);
-        }
+            }
 
             //functions
             //====================
@@ -302,32 +322,55 @@ public class GinjaKarpTelePID extends LinearOpMode {
                 arm.reset();
             }*/
 
-            if (gamepad2.dpad_up == true && upReleased) {//manual lift up
-                upReleased = false;
-                //gallow -= 50;
-                //arm.target = gallow;
+            if (FlipStep > -2000) {
+                height = LevelEnum.STANDARD;
+            }
 
-                if (height == Level.LOW) {
-                    height = Level.MEDIUM;
-                } else if (height == Level.MEDIUM){
-                    height = Level.HIGH;
+            if (gamepad1.back == true && backReleased) {//manual lift up
+                backReleased = false;
+
+                if (endGame) {
+                    endGame = false;
                 } else {
-                    height = Level.STANDARD;
+                    endGame = true;
+                }
+
+            } else if (gamepad2.dpad_up == false) {
+                backReleased = true;
+            }
+
+            if (gamepad2.dpad_up == true && (upReleased || endGame)) {//manual lift up
+                upReleased = false;
+
+                if (endGame) {
+                    gallow -= 50;
+                    arm.target = gallow;
+                } else {
+                    if (height == LevelEnum.LOW) {
+                        height = LevelEnum.MEDIUM;
+                    } else if (height == LevelEnum.MEDIUM) {
+                        height = LevelEnum.HIGH;
+                    } else {
+                        height = LevelEnum.STANDARD;
+                    }
                 }
 
             } else if (gamepad2.dpad_up == false) {
                 upReleased = true;
             }
 
-            if (gamepad2.dpad_down == true && downReleased) {//manual lift down
+            if (gamepad2.dpad_down == true && (downReleased || endGame)) {//manual lift down
                 downReleased = false;
-                //gallow += 50;
-                //arm.target = gallow;
 
-                if (height == Level.STANDARD) {
-                    height = Level.LOW;
+                if (endGame) {
+                    gallow += 50;
+                    arm.target = gallow;
                 } else {
-                    height = Level.STANDARD;
+                    if (height == LevelEnum.STANDARD) {
+                        height = LevelEnum.LOW;
+                    } else {
+                        height = LevelEnum.STANDARD;
+                    }
                 }
 
             } else if (gamepad2.dpad_down == false) {
@@ -335,7 +378,8 @@ public class GinjaKarpTelePID extends LinearOpMode {
             }
 
             if (!downReleased || !upReleased) {
-                switch (height) {
+                if (!endGame) {gallow = height.pos();}
+                /*switch (height) {
                     case STANDARD:
                         gallow = -3300;
                         break;
@@ -348,7 +392,7 @@ public class GinjaKarpTelePID extends LinearOpMode {
                     case HIGH:
                         gallow = -3700;
                         break;
-                }
+                }*/
                 arm.target = gallow;
             }
 
@@ -415,8 +459,8 @@ public class GinjaKarpTelePID extends LinearOpMode {
 
             //non-fieldCentric
             //====================
-            
-            
+
+
             //====================
             //fieldCentric
 
@@ -524,7 +568,7 @@ public class GinjaKarpTelePID extends LinearOpMode {
                 }
 
             }//end fieldCentric if
-            
+
             //fieldCentric
             //====================
 
