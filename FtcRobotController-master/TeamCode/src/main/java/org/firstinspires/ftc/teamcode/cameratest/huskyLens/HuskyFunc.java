@@ -27,6 +27,9 @@ public class HuskyFunc {
         huskyLens = hardwareMap.get(HuskyLens.class, "husky");
 
         huskyLens.initialize();
+
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
+
     }//ends init
 
 
@@ -44,10 +47,10 @@ public class HuskyFunc {
 
         int objectX = 0;
 
-        int loopCounter = 1;
+        int loopTimer = 0;
 
-        while(!scanned && loopCounter <= 20) {
-            loopCounter++;
+        while(!scanned && loopTimer <= 500) {
+            loopTimer++;
             if (!rateLimit.hasExpired()) {
 
                 continue;
@@ -63,6 +66,8 @@ public class HuskyFunc {
 
                 prop = TeamProp;
 
+                objectX = prop.x;
+
 
                 if (prop.id == 1) {
 
@@ -75,7 +80,13 @@ public class HuskyFunc {
             }//end forLoop
         }//end whileLoop
 
-        return objectX;
+        //return objectX;
+
+        if (scanned) {
+            return objectX;
+        } else {
+            return -1;
+        }
 
     }//end runOpMode
 }//end class

@@ -22,7 +22,7 @@ public class FarLeftBlue extends LinearOpMode{
                 .lineToLinearHeading(new Pose2d (22, 0, Math.toRadians(-90)))
                 .build();
         drivetrain.followTrajectory(lineTo2);
-        Trajectory toStack = drivetrain.trajectoryBuilder(new Pose2d(26, 0, Math.toRadians(-90)))
+        Trajectory toStack = drivetrain.trajectoryBuilder(new Pose2d(22, 0, Math.toRadians(-90)))
                 .lineToLinearHeading(new Pose2d (24, -17, Math.toRadians(-90)))
                 .build();
         drivetrain.followTrajectory(toStack);

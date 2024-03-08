@@ -6,10 +6,32 @@ public class Globals {
 
 
     //====================
+    //auto constants
+
+    public static final double PIXEL = 0.5; //inches
+
+    //auto constants
+    //====================
+
+
+    //====================
+    //claw constants
+
+    public static final double CLAWLCLOSED = 0; //inches
+    public static final double CLAWLOPEN = 270; //inches
+
+    public static final double CLAWRCLOSED = 270; //inches
+    public static final double CLAWROPEN = 0; //inches
+
+    //claw constants
+    //====================
+
+
+    //====================
     //wrist constants
 
-    public static final double WXD = 150;
-    public static final double WYD = 50;
+    public static final double WXD = 150; //degrees
+    public static final double WYD = 50; //degrees
 
     public static final double WRISTDOWN = 0; //degrees
     public static final double WRISTUP = 150; //degrees
@@ -29,12 +51,12 @@ public class Globals {
     public static final double PIVOTUP = 110; //degrees
     public static final double PIVOTSTORED = -10; //degrees
 
-    public static final double SIDECENTER = 0;
-    public static final double SIDELEFT = -25;
-    public static final double SIDERIGHT = 13;
+    public static final double SIDECENTER = 0; //degrees
+    public static final double SIDELEFT = -25; //degrees
+    public static final double SIDERIGHT = 13; //degrees
 
     public static final double SL = 18; //inches
-    public static final double PHEIGHT = 7.5; //inches was 4
+    public static final double PHEIGHT = 6; //inches was 7.5
 
     //pivot constants
     //====================
@@ -43,13 +65,23 @@ public class Globals {
     //====================
     //slide constants
 
-    public static final double SI = -220;// -3300/15 ticks / inches - was 2462/17
+    public static final double SI = -226.66;// 3400/15 ticks / inches - was -3300/15
 
-    public static final double SLIDEXTEND = -3300;
+    public static final double SLIDEXTEND = -3400; //ticks was -3300
 
-    public static final double SLIDERETRACT = 0;
+    public static final double SLIDERETRACT = -220; //ticks was 0
 
     //slide constants
+    //====================
+
+
+    //====================
+    //auto globals
+
+    public static boolean pivotStack = false;
+    public static double stackHeight = 4 * PIXEL; //inches
+
+    //auto globals
     //====================
 
 
@@ -71,14 +103,14 @@ public class Globals {
     public static boolean pivotLeft = false;
     public static boolean pivotRight = false;
 
-    public static int pivotXOffset = 0;
-    public static int pivotYOffset = 0;
+    public static int pivotXOffset = 0; //degrees
+    public static int pivotYOffset = 0; //degrees
 
-    public static double pivotXTarget = 0;
-    public static double pivotYTarget = 0;
+    public static double pivotXTarget = 0; //degrees
+    public static double pivotYTarget = 0; //degrees
 
-    public static double pivotXDegrees = 0;
-    public static double pivotYDegrees = 0;
+    public static double pivotXDegrees = 0; //degrees
+    public static double pivotYDegrees = 0; //degrees
 
     //pivot globals
     //====================
@@ -87,7 +119,8 @@ public class Globals {
     //====================
     //slide globals
 
-    public static double slideInches = 0;
+    public static double slideInches = 0; //inches
+    public static double slideTarget = 0; //inches
 
     //slide globals
     //====================
@@ -102,6 +135,7 @@ public class Globals {
         pivotRight = false;
         pivotLeft = false;
         wristStored = false;
+        stackHeight = 4;
     }
 
     public static void pivotNeutral() {
@@ -110,6 +144,8 @@ public class Globals {
         pivotRight = false;
         pivotLeft = false;
         wristStored = false;
+        pivotStack = false;
+        stackHeight = 4;
     }
 
     public static void pivotstored() {
@@ -126,12 +162,22 @@ public class Globals {
         pivotRight = false;
         pivotLeft = false;
         wristStored = false;
+        stackHeight = 4;
     }
 
     public static void readPositions(int pX, int pY, int sP) {
         pivotXDegrees = pX / PXD;
         pivotYDegrees = pY / PYD;
         slideInches = sP / SI;
+    }
+
+    public static void stackUp() {
+        stackHeight -= PIXEL;
+        pivotStack = true;
+        if (stackHeight < 1) {
+            stackHeight = 4;
+            pivotStack = false;
+        }
     }
 
     //set variables

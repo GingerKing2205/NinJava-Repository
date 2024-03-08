@@ -19,12 +19,11 @@ public class StateTele extends LinearOpMode {
 
     public hardware robot = new hardware();
     public WristSubsystem wrist = new WristSubsystem();
-    //public PivotSubsystem pivot = new PivotSubsystem();
 
     @Override
     public void runOpMode() throws InterruptedException {
         
-        robot.init(hardwareMap);
+        robot.init(hardwareMap, true);
         robot.runMode();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -58,6 +57,7 @@ public class StateTele extends LinearOpMode {
         robot.clawR.setPosition(270);
         robot.clawL.setPosition(0);
 
+
         //scoring variables
         //====================
 
@@ -84,10 +84,10 @@ public class StateTele extends LinearOpMode {
             if (gamepad2.right_bumper) {
 
                 if (!rightClosed && !rbump) {
-                    robot.clawR.setPosition(270);
+                    robot.clawR.setPosition(Globals.CLAWRCLOSED);
                     rightClosed = true;
                 } else if (!rbump){
-                    robot.clawR.setPosition(0);
+                    robot.clawR.setPosition(Globals.CLAWROPEN);
                     rightClosed = false;
                 }
                 rbump = true;
@@ -97,10 +97,10 @@ public class StateTele extends LinearOpMode {
 
             if (gamepad2.left_bumper) {
                 if (!leftClosed && !lbump) {
-                    robot.clawL.setPosition(270);
+                    robot.clawL.setPosition(Globals.CLAWLCLOSED);
                     leftClosed = true;
                 } else if (!lbump){
-                    robot.clawL.setPosition(0);
+                    robot.clawL.setPosition(Globals.CLAWLOPEN);
                     leftClosed = false;
                 }
                 lbump = true;
@@ -112,7 +112,7 @@ public class StateTele extends LinearOpMode {
 
             if (gamepad2.right_trigger != 0) {
                 if (robot.slide.getCurrentPosition() > Globals.SLIDEXTEND) {
-                    robot.slide.setPower(1);
+                    robot.slide.setPower(-1);
                     PivotSubsystem.set();
                     wrist.set();
                 } else{
@@ -120,7 +120,7 @@ public class StateTele extends LinearOpMode {
                 }
             } else if (gamepad2.left_trigger != 0) {
                 if (robot.slide.getCurrentPosition() <= Globals.SLIDERETRACT) {
-                    robot.slide.setPower(-1);
+                    robot.slide.setPower(1);
                     PivotSubsystem.set();
                     wrist.set();
                 } else {
@@ -144,15 +144,22 @@ public class StateTele extends LinearOpMode {
             }
 
             if (gamepad2.start) {
+                Globals.pivotLeft = false;
+                Globals.pivotRight = true;
+                PivotSubsystem.set();
+                wrist.set();
+            }
+
+            if (gamepad2.back) {
                 Globals.pivotLeft = true;
                 Globals.pivotRight = false;
                 PivotSubsystem.set();
                 wrist.set();
             }
 
-            if (gamepad2.back) {
-                Globals.pivotLeft = false;
-                Globals.pivotRight = true;
+            if (gamepad2.b) {
+                Globals.stackUp();
+
                 PivotSubsystem.set();
                 wrist.set();
             }
@@ -188,6 +195,8 @@ public class StateTele extends LinearOpMode {
             if (gamepad2.dpad_up) {
                 if (!upPressed) {
                     PivotSubsystem.moveOffset(true, false);
+                    PivotSubsystem.set();
+                    wrist.set();
                 }
                 upPressed = true;
             } else {
@@ -197,6 +206,8 @@ public class StateTele extends LinearOpMode {
             if (gamepad2.dpad_down) {
                 if (!downPressed) {
                     PivotSubsystem.moveOffset(true, true);
+                    PivotSubsystem.set();
+                    wrist.set();
                 }
                 downPressed = true;
             } else {
@@ -206,6 +217,8 @@ public class StateTele extends LinearOpMode {
             if (gamepad2.dpad_left) {
                 if (!leftPressed) {
                     PivotSubsystem.moveOffset(false, true);
+                    PivotSubsystem.set();
+                    wrist.set();
                 }
                 leftPressed = true;
             } else {
@@ -215,6 +228,8 @@ public class StateTele extends LinearOpMode {
             if (gamepad2.dpad_right) {
                 if (!rightPressed) {
                     PivotSubsystem.moveOffset(false, false);
+                    PivotSubsystem.set();
+                    wrist.set();
                 }
                 rightPressed = true;
             } else {
@@ -254,6 +269,8 @@ public class StateTele extends LinearOpMode {
             telemetry.addData("wristStored", Globals.wristStored);
             telemetry.addData("aPressed" , aPressed);
 
+            telemetry.addData("stackHeight", Globals.stackHeight);
+
             telemetry.update();
 
             //telemetry
@@ -266,7 +283,7 @@ public class StateTele extends LinearOpMode {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
             double rx = -gamepad1.right_stick_x;
-            double throttle = gamepad1.right_trigger;
+            //double throttle = gamepad1.right_trigger;
 
             double frontLeftPowerRaw = (y + x + (rx * -.7));
             double backLeftPowerRaw = (y - x + (rx * -.7));
@@ -298,10 +315,10 @@ public class StateTele extends LinearOpMode {
             }
 
             if (!gamepad1.b) {//normal speed
-                robot.frontL.setPower(-frontLeftPowerRaw * throttle);
-                robot.backL.setPower(-backLeftPowerRaw * throttle);
-                robot.frontR.setPower(-frontRightPowerRaw * throttle);
-                robot.backR.setPower(-backRightPowerRaw * throttle);
+                robot.frontL.setPower(-frontLeftPowerRaw);
+                robot.backL.setPower(-backLeftPowerRaw);
+                robot.frontR.setPower(-frontRightPowerRaw);
+                robot.backR.setPower(-backRightPowerRaw);
             }
 
             if (gamepad1.b) {
@@ -320,7 +337,29 @@ public class StateTele extends LinearOpMode {
 
             //drivetrain functions
             //====================
-            
+
+
+            //====================
+            //endgame functions
+
+            if (gamepad1.start) {
+                robot.plane.setPower(1);
+            } else {
+                robot.plane.setPower(0);
+            }
+
+            if (gamepad1.back) {
+                robot.pivotX2.setPower(-1);
+
+                Globals.pivotIntaking();
+                PivotSubsystem.set();
+            } else {
+                robot.pivotX2.setPower(0);
+            }
+
+            //endgame functions
+            //====================
+
 
             //====================
             //debug functions
@@ -333,6 +372,7 @@ public class StateTele extends LinearOpMode {
             if (gamepad1.dpad_up) {
                 if (!up1Pressed) {
                     wrist.moveOffset(true, false);
+                    wrist.set();
                 }
                 up1Pressed = true;
             } else {
@@ -342,6 +382,7 @@ public class StateTele extends LinearOpMode {
             if (gamepad1.dpad_down) {
                 if (!down1Pressed) {
                     wrist.moveOffset(true, true);
+                    wrist.set();
                 }
                 down1Pressed = true;
             } else {
@@ -351,6 +392,7 @@ public class StateTele extends LinearOpMode {
             if (gamepad1.dpad_left) {
                 if (!left1Pressed) {
                     wrist.moveOffset(false, true);
+                    wrist.set();
                 }
                 left1Pressed = true;
             } else {
@@ -360,14 +402,16 @@ public class StateTele extends LinearOpMode {
             if (gamepad1.dpad_right) {
                 if (!right1Pressed) {
                     wrist.moveOffset(false, false);
+                    wrist.set();
                 }
                 right1Pressed = true;
             } else {
                 right1Pressed = false;
             }
 
-            if (gamepad1.b) {
+            if (gamepad1.guide) {
                 wrist.resetOffset();
+                wrist.set();
             }
 
             //debug functions

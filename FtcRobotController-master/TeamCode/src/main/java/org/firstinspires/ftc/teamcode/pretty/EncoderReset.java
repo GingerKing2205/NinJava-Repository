@@ -25,7 +25,7 @@ public class EncoderReset extends LinearOpMode{
 
     public void runOpMode() throws InterruptedException {
 
-        robot.init(hardwareMap);
+        robot.init(hardwareMap, true);
 
 
         robot.encoderReset();

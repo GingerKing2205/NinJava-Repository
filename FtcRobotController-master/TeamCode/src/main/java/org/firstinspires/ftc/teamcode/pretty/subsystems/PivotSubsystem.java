@@ -40,8 +40,13 @@ public class PivotSubsystem {
         if (Globals.pivotDown || Globals.pivotUp) {
             //calculateTarget();
             if (Globals.pivotDown) {
-                Globals.pivotXTarget = Math.toDegrees(-Math.asin(Globals.PHEIGHT / (Globals.SL + Globals.slideInches)));
-                Globals.pivotYTarget = Globals.SIDECENTER;
+                if (Globals.pivotStack) {
+                    Globals.pivotXTarget = Math.toDegrees(-Math.asin((Globals.PHEIGHT - Globals.stackHeight) / (Globals.SL + Globals.slideInches)));
+                    Globals.pivotYTarget = Globals.SIDECENTER;
+                } else {
+                    Globals.pivotXTarget = Math.toDegrees(-Math.asin(Globals.PHEIGHT / (Globals.SL + Globals.slideInches)));
+                    Globals.pivotYTarget = Globals.SIDECENTER;
+                }
             } else if (Globals.pivotUp) {
                 Globals.pivotXTarget = Globals.PIVOTUP;
                 if (Globals.pivotRight) {

@@ -16,7 +16,7 @@ public class ATelecheck extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
 
 
-        robot.init(hardwareMap);
+        robot.init(hardwareMap, false);
         robot.runMode();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 

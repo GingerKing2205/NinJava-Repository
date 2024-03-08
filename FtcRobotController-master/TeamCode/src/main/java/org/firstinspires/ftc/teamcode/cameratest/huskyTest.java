@@ -59,7 +59,7 @@ public class huskyTest extends LinearOpMode {
         } else {
             telemetry.addData(">>", "Press start to continue");
         }
-        huskyLens.selectAlgorithm(HuskyLens.Algorithm.OBJECT_TRACKING);
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
 
         telemetry.update();
         waitForStart();

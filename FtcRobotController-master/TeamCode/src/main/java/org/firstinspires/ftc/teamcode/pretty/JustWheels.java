@@ -33,7 +33,7 @@ public class JustWheels extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        robot.init(hardwareMap);
+        robot.init(hardwareMap, true);
         //robot.runMode();
 
         //====================/

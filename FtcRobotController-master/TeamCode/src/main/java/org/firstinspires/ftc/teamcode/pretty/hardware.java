@@ -32,6 +32,7 @@ public class hardware {
     //arm
     public DcMotorEx slide;
     public DcMotorEx pivotX, pivotY;
+    public DcMotorEx pivotX2;
     public Servo wristX, wristY;
     public Servo clawL, clawR;
 
@@ -45,31 +46,32 @@ public class hardware {
     public IMU imu;
 
 
-    public void init(final HardwareMap hardwareMap) {
+    public void init(final HardwareMap hardwareMap, boolean drivetrain) {
         this.hardwareMap = hardwareMap;
 
-        this.frontL = hardwareMap.get(DcMotorEx.class, "frontL");
-        frontL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontL.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (drivetrain) {
+            this.frontL = hardwareMap.get(DcMotorEx.class, "frontL");
+            frontL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontL.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        this.frontR = hardwareMap.get(DcMotorEx.class, "frontR");
-        frontR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            this.frontR = hardwareMap.get(DcMotorEx.class, "frontR");
+            frontR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        this.backL = hardwareMap.get(DcMotorEx.class, "backL");
-        backL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backL.setDirection(DcMotorSimple.Direction.REVERSE);
+            this.backL = hardwareMap.get(DcMotorEx.class, "backL");
+            backL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backL.setDirection(DcMotorSimple.Direction.REVERSE);
+
+            this.backR = hardwareMap.get(DcMotorEx.class, "backR");
+            backR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        this.backR = hardwareMap.get(DcMotorEx.class, "backR");
-        backR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        this.imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
-        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
-        imu.initialize(parameters);
-
+            this.imu = hardwareMap.get(IMU.class, "imu");
+            IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
+                    RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+            // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+            imu.initialize(parameters);
+        }
 
 
         this.slide = hardwareMap.get(DcMotorEx.class, "slide");
@@ -77,6 +79,9 @@ public class hardware {
 
 
         this.pivotX = hardwareMap.get(DcMotorEx.class, "pivotX");
+
+        this.pivotX2 = hardwareMap.get(DcMotorEx.class, "pivotX2");
+        pivotX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
         this.pivotY = hardwareMap.get(DcMotorEx.class, "pivotY");
@@ -109,9 +114,6 @@ public class hardware {
     }
 
     public void runMode() {
-       // this.slide.setTargetPosition(slide.getCurrentPosition());
-       // this.slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-       // this.slide.setVelocity(8000);
         this.slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         this.pivotX.setTargetPosition(pivotX.getCurrentPosition());
